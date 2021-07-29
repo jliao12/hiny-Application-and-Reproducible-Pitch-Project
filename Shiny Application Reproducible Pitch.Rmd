@@ -1,0 +1,50 @@
+---
+title: "Shiny Application Reproducible Pitch Presentation"
+author: "JH"
+date: "7/28/2021"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Instructions
+
+This peer assessed assignment has two parts. First, you will create a Shiny application and deploy it on Rstudio's servers. Second, you will use Slidify or Rstudio Presenter to prepare a reproducible pitch presentation about your application. 
+
+The detailed instructions can be found online.
+
+## App Introduction
+This App is used for checking the performance statistics of James Harden, a NBA player, in his career so far.
+
+The App can be accessed from the followed link: <https://jliao12.shinyapps.io/example/>
+
+The app.R file can be found as follow : <http://rmarkdown.rstudio.com>
+
+
+
+## Side Panel Introduction
+
+In side panel, you can select the following options:  
+
+- **Season:** can select from 2009-10 season to 2020-21 season
+- **Regular or Playoffs:** can select the regular season or playoffs
+- **Statistics:** six main stats are listed for you to choose
+
+By selecting the three options, you can get the specific stats in specific season and specific stages
+
+## Main Panel Introduction
+
+The main panel has three sections as well:   
+
+- **Head:** the head will display the season and stages you choose
+- **Table:** the table will display the stats you choose in that season and stage
+- **Plots:** the plots will display the changing of the stats you choose along the 12 years of James Harden's career. The yellow vertical line will indicate the season you choose 
+
+## Slide with Plot
+
+```{r pressure}
+plot(pressure)
+```
+

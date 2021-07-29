@@ -1,0 +1,13 @@
+name: example
+title: example
+username:
+account: jliao12
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 4434562
+bundleId: 4866439
+url: https://jliao12.shinyapps.io/example/
+when: 1627516162.46584
+lastSyncTime: 1627516162.46585
+asMultiple: FALSE
+asStatic: FALSE
