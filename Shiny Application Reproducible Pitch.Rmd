@@ -9,42 +9,79 @@ output: ioslides_presentation
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-## Instructions
+```{r, echo=FALSE,message=FALSE}
+library(dplyr)
 
-This peer assessed assignment has two parts. First, you will create a Shiny application and deploy it on Rstudio's servers. Second, you will use Slidify or Rstudio Presenter to prepare a reproducible pitch presentation about your application. 
+```
 
-The detailed instructions can be found online.
 
 ## App Introduction
 This App is used for checking the performance statistics of James Harden, a NBA player, in his career so far.
 
 The App can be accessed from the followed link: <https://jliao12.shinyapps.io/example/>
 
-The app.R file can be found as follow : <http://rmarkdown.rstudio.com>
+The app.R file can be found as follow : <https://github.com/jliao12/hiny-Application-and-Reproducible-Pitch-Project/blob/master/ExampleApp/app.R>
+
+## Overview of data
+```{r,echo=FALSE,message=FALSE}
+library(plotly)
+library(reshape2)
+library(dplyr)
+library(grid)
+h_r <- read.csv(url("https://raw.githubusercontent.com/jliao12/hiny-Application-and-Reproducible-Pitch-Project/master/original_data/harden_regular.csv"))
+h_p <- read.csv(url("https://raw.githubusercontent.com/jliao12/hiny-Application-and-Reproducible-Pitch-Project/master/original_data/harden_playoff.csv"))
+season_list <- h_r[,"Season"]
+row.names(h_r) <- season_list
+row.names(h_p) <- season_list
+h_r <- mutate(h_r,year = seq(2009,2020,1))
+h_p <- mutate(h_p,year = seq(2009,2020,1))
+h_r$FGP <- h_r$FGP*100
+h_p$FGP <- h_p$FGP*100
+h_r_s <- h_r[,c("G","PTS","FGP","AST","STL","TRB","year")]
+h_p_s <- h_p[,c("G","PTS","FGP","AST","STL","TRB","year")]
+h_r_s_m <- melt(h_r_s,id.vars = "year",variable.name = "stat",value.name = "value")
+h_p_s_m <- melt(h_p_s,id.vars = "year",variable.name = "stat",value.name = "value")
+h_r_s_m <- mutate(h_r_s_m,cato = rep("Regular",72))
+h_p_s_m <- mutate(h_p_s_m,cato = rep("Playoff",72))
+mix <- rbind(h_r_s_m,h_p_s_m)
+la <- c("2010-11","2012-13","2014-15","2016-17","2018-19","2020-21")
+head(h_r_s)
+head(h_p_s)
+```
 
 
+## Panel Introduction
 
-## Side Panel Introduction
-
-In side panel, you can select the following options:  
+<font size="4"> In side panel, you can select the following options:   
 
 - **Season:** can select from 2009-10 season to 2020-21 season
 - **Regular or Playoffs:** can select the regular season or playoffs
 - **Statistics:** six main stats are listed for you to choose
+- **Years to Forecast** slide input the number of future years to forecast the pts performance.  
 
-By selecting the three options, you can get the specific stats in specific season and specific stages
-
-## Main Panel Introduction
-
-The main panel has three sections as well:   
+The main panel has two tabs, the Overview tab has three sections: 
 
 - **Head:** the head will display the season and stages you choose
 - **Table:** the table will display the stats you choose in that season and stage
-- **Plots:** the plots will display the changing of the stats you choose along the 12 years of James Harden's career. The yellow vertical line will indicate the season you choose 
+- **Plots:** the plots will display the changing of the stats you choose. The yellow vertical line will indicate the season you choose 
 
-## Slide with Plot
+The forecast tab display the PTS forecast plot and the 95% confidence interval of PTS.</font>
 
-```{r pressure}
-plot(pressure)
+## Plots Sample
+```{r,echo=FALSE}
+library(reshape2)
+ggplotly(ggplot(mix,aes(x = year, y = value, colour = cato)) +
+                         geom_point(size = 1,shape = 1) + 
+                         facet_wrap(~stat,scales = "free") + 
+                         theme(panel.spacing.x=unit(0.5, "lines"),
+                               panel.spacing.y=unit(2, "lines"),
+                               axis.ticks = element_blank(),
+                               axis.text.x = element_text(angle = 30,size = 6),
+                               axis.text.y =  element_text(size = 6)) +
+                         scale_x_continuous(breaks = c(2010,2012,2014,2016,2018,2020),
+                                            labels= la) + 
+                         xlab(NULL)
+                     
+            ) %>% layout(legend = list(orientation = "h", x = 0.35, y = -0.2))
+
 ```
-

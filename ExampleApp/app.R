@@ -2,8 +2,11 @@ library(shiny)
 library(plotly)
 library(reshape2)
 library(dplyr)
+library(ggplot2)
 library(shinyWidgets)
 library(grid)
+library(TTR)
+library(forecast)
 
 #Data Input
 h_r <- read.csv(url("https://raw.githubusercontent.com/jliao12/hiny-Application-and-Reproducible-Pitch-Project/master/original_data/harden_regular.csv"))
@@ -24,6 +27,11 @@ h_p_s_m <- mutate(h_p_s_m,cato = rep("Playoff",72))
 mix <- rbind(h_r_s_m,h_p_s_m)
 la <- c("2010-11","2012-13","2014-15","2016-17","2018-19","2020-21")
 
+p <- forecast:::forecast.HoltWinters(HoltWinters(ts(h_r$PTS,start = 2009), 
+                beta=FALSE, gamma=FALSE),h=5,level = 0.95)
+ft <- data.frame("low95" = p$lower, "up95" = p$upper)
+colnames(ft) <-c("low95","up95")
+rownames(ft) <-c("2021-22","2022-23","2023-24","2024-25","2025-26")
 
 ui <- fluidPage(
 
@@ -41,14 +49,23 @@ ui <- fluidPage(
                                "Field Goal Pecentage (FGP)" = "FGP",
                                "Assist Per Game (AST)" = "AST",
                                "Rebounds Per Game (TRB)" = "TRB",
-                               "Steals Per Game (STL)" = "STL"))
+                               "Steals Per Game (STL)" = "STL")),
+        sliderInput("year", "Number of years to Forecast (Forecast Tab):",
+                    min = 1, max = 5,
+                    value = 3)
     ),
     mainPanel(
-        h3(textOutput("oid1"),
-           style = "font-family: Lucida Handwriting, Cursive;
+        tabsetPanel(type = "tabs",
+            tabPanel("Overview",
+                     h3(textOutput("oid1"),
+                        style = "font-family: Lucida Handwriting, Cursive;
            font-weight: bold;"), 
-        tableOutput("data"),
-        plotlyOutput("plot1")
+                     tableOutput("data"),
+                     plotlyOutput("plot1")),
+            tabPanel("PTS Forecast", plotOutput("plot2"),
+                     tableOutput("fore"))
+        
+        )
     )
 )
 
@@ -71,6 +88,7 @@ server <- function(input, output,session) {
                          geom_vline(xintercept = h_r[input$Season,"year"],
                                     linetype='dashed', color='yellow') +
                          geom_point(size = 1,shape = 1) + 
+                         geom_smooth() +
                          facet_wrap(~stat,scales = "free") + 
                          theme(panel.spacing.x=unit(0.5, "lines"),
                                panel.spacing.y=unit(2, "lines"),
@@ -83,6 +101,15 @@ server <- function(input, output,session) {
                      
             ) %>% layout(legend = list(orientation = "h", x = 0.35, y = -0.2))
     })
+    output$plot2 <- renderPlot({
+        plot(forecast:::forecast.HoltWinters(
+            HoltWinters(ts(h_r$PTS,start = 2009),
+                             beta=FALSE, gamma=FALSE),h =input$year),
+            main = "PTS Forecasts", ylab = "PTS", xlab = "year")
+    })
+    output$fore <- renderTable({
+        ft[c(1:input$year),]
+    },rownames = T)
 }
 
 # Run the application 
